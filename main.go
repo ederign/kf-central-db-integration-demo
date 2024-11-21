@@ -17,6 +17,18 @@ type ParamsData struct {
 func handleRequest(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Received %s request for %s", r.Method, r.URL.Path)
 
+	log.Println("Incoming Request Headers:")
+	for name, values := range r.Header {
+		for _, value := range values {
+			log.Printf("Header: %s=%s", name, value)
+		}
+	}
+
+	log.Println("Incoming Cookies:")
+	for _, cookie := range r.Cookies() {
+		log.Printf("Cookie: %s=%s", cookie.Name, cookie.Value)
+	}
+
 	w.Header().Set("X-Frame-Options", "ALLOWALL")
 	w.Header().Set("Content-Security-Policy", "frame-ancestors *;")
 
@@ -97,7 +109,10 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer modelRegistryResp.Body.Close()
-	fmt.Println("modelRegistryResp.StatusCode")
+
+	// Print the status code of the model-registry response
+	fmt.Println(modelRegistryResp.StatusCode)
+
 	if modelRegistryResp.StatusCode != http.StatusOK {
 		log.Printf("Model registry service returned status: %s", modelRegistryResp.Status)
 		http.Error(w, "Model registry service error", modelRegistryResp.StatusCode)
